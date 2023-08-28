@@ -1,10 +1,7 @@
 import { createConnection } from "mysql";
 import "dotenv/config";
 
-const NOTICIAS_TABLE = "noticias";
-const CAMPEONATOS_TABLE = "campeonatos";
-
-var conn = createConnection({
+export const conn = createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
@@ -17,13 +14,11 @@ conn.connect(function (err) {
   console.log("Connected!");
 });
 
-export default conn;
-
 /*
  * NOTICIAS
  */
 
-function createNoticia(noticia) {
+export function createNoticia(noticia) {
   conn.query(
     `
     INSERT INTO 
@@ -50,7 +45,7 @@ function createNoticia(noticia) {
   );
 }
 
-function removeNoticiaWithSite(site) {
+export function removeNoticiaWithSite(site) {
   conn.query(`DELETE FROM noticias WHERE site=${site}`, function (error) {
     if (error) throw error;
   });
@@ -60,7 +55,7 @@ function removeNoticiaWithSite(site) {
  * CAMPEONATOS
  */
 
-function createCampeonato(campeonato) {
+export function createCampeonato(campeonato) {
   conn.query(
     `
     INSERT INTO 
@@ -89,7 +84,7 @@ function createCampeonato(campeonato) {
   );
 }
 
-function updateCampeonato(campeonato) {
+export function updateCampeonato(campeonato) {
   conn.query(
     `
     UPDATE campeonatos
@@ -109,13 +104,13 @@ function updateCampeonato(campeonato) {
   );
 }
 
-function findAllCampeonatos() {
+export function findAllCampeonatos() {
   conn.query(`SELECT * FROM campeonatos`, function (error) {
     if (error) throw error;
   });
 }
 
-function findCampeonatoById(id) {
+export function findCampeonatoById(id) {
   conn.query(`SELECT * FROM campeonatos WHERE id=${id}`, function (error) {
     if (error) throw error;
   });
@@ -125,7 +120,7 @@ function findCampeonatoById(id) {
  * PARTIDA
  */
 
-function createPartida(partida) {
+export function createPartida(partida) {
   conn.query(
     `
     INSERT INTO 
@@ -145,19 +140,19 @@ function createPartida(partida) {
             rodada_index
         )
     VALUES(
-        ${campeonato.id}, 
-        ${campeonato.data}, 
-        ${campeonato.timeCasa}, 
-        ${campeonato.timeFora}, 
-        ${campeonato.escudoCasa}, 
-        ${campeonato.escudoFora},
-        ${campeonato.golsCasa},
-        ${campeonato.golsFora},
-        ${campeonato.campeonato},
-        ${campeonato.campeonatoId},
-        ${campeonato.partidaFlamengo},
-        ${campeonato.rodadaName},
-        ${campeonato.rodadaIndex}
+        ${partida.id}, 
+        ${partida.data}, 
+        ${partida.timeCasa}, 
+        ${partida.timeFora}, 
+        ${partida.escudoCasa}, 
+        ${partida.escudoFora},
+        ${partida.golsCasa},
+        ${partida.golsFora},
+        ${partida.campeonato},
+        ${partida.campeonatoId},
+        ${partida.partidaFlamengo},
+        ${partida.rodadaName},
+        ${partida.rodadaIndex}
     )
     `,
     function (error) {
@@ -166,7 +161,7 @@ function createPartida(partida) {
   );
 }
 
-function deletePartidaWithCampeonatoId(campeonatoId) {
+export function deletePartidaWithCampeonatoId(campeonatoId) {
   conn.query(
     `DELETE FROM partidas WHERE campeonato_id=${campeonatoId}`,
     function (error) {
@@ -179,7 +174,7 @@ function deletePartidaWithCampeonatoId(campeonatoId) {
  * POSICAO
  */
 
-function createPosicao(posicao) {
+export function createPosicao(posicao) {
   conn.query(
     `
     INSERT INTO 
@@ -201,21 +196,21 @@ function createPosicao(posicao) {
             classificacao_index
         )
     VALUES(
-        ${campeonato.id}, 
-        ${campeonato.posicao}, 
-        ${campeonato.nomeTime}, 
-        ${campeonato.escudoTime}, 
-        ${campeonato.pontos}, 
-        ${campeonato.jogos},
-        ${campeonato.vitorias},
-        ${campeonato.empates},
-        ${campeonato.derrotas},
-        ${campeonato.golsFeitos},
-        ${campeonato.golsSofridos},
-        ${campeonato.saldoGols},
-        ${campeonato.campeonatoId},
-        ${campeonato.classificacaoName},
-        ${campeonato.classificacaoIndex}
+        ${posicao.id}, 
+        ${posicao.posicao}, 
+        ${posicao.nomeTime}, 
+        ${posicao.escudoTime}, 
+        ${posicao.pontos}, 
+        ${posicao.jogos},
+        ${posicao.vitorias},
+        ${posicao.empates},
+        ${posicao.derrotas},
+        ${posicao.golsFeitos},
+        ${posicao.golsSofridos},
+        ${posicao.saldoGols},
+        ${posicao.campeonatoId},
+        ${posicao.classificacaoName},
+        ${posicao.classificacaoIndex}
     )
     `,
     function (error) {
@@ -224,7 +219,7 @@ function createPosicao(posicao) {
   );
 }
 
-function deletePosicaoWithCampeonatoId(campeonatoId) {
+export function deletePosicaoWithCampeonatoId(campeonatoId) {
   conn.query(
     `DELETE FROM posicoes WHERE campeonato_id=${campeonatoId}`,
     function (error) {
