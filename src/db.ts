@@ -19,6 +19,7 @@ export async function startConnection() {
 
 export function endConnection() {
   conn.end();
+  console.log("Finished!");
 }
 
 /*
@@ -39,12 +40,12 @@ export async function createNoticia(noticia) {
             foto
         )
     VALUES(
-        ${noticia.link}, 
-        ${noticia.titulo}, 
+        '${noticia.link}', 
+        '${noticia.titulo}', 
         ${noticia.data}, 
-        ${noticia.site}, 
-        ${noticia.logoSite}, 
-        ${noticia.foto}
+        '${noticia.site}', 
+        '${noticia.logoSite}', 
+        '${noticia.foto}'
     )
     `,
       function (err) {
@@ -56,7 +57,7 @@ export async function createNoticia(noticia) {
 
 export async function deleteNoticiaWithSite(site) {
   await new Promise((resolve, reject) => {
-    conn.query(`DELETE FROM noticias WHERE site=${site}`, function (err) {
+    conn.query(`DELETE FROM noticias WHERE site='${site}'`, function (err) {
       err ? reject(err) : resolve(null);
     });
   });
@@ -81,10 +82,10 @@ export async function createCampeonato(campeonato) {
             rodada_final
         )
     VALUES(
-        ${campeonato.id}, 
+        '${campeonato.id}', 
         ${campeonato.ano}, 
-        ${campeonato.nome}, 
-        ${campeonato.logo}, 
+        '${campeonato.nome}', 
+        '${campeonato.logo}', 
         ${campeonato.possuiClassificacao}, 
         ${campeonato.rodadaAtual},
         ${campeonato.rodadaFinal}
@@ -148,7 +149,7 @@ export async function findAllCampeonatos(): Promise<any[]> {
 export async function findCampeonatoById(id): Promise<any> {
   return await new Promise((resolve, reject) => {
     conn.query(
-      `SELECT * FROM campeonatos WHERE id=${id}`,
+      `SELECT * FROM campeonatos WHERE id='${id}'`,
       function (err, results) {
         err ? reject(err) : resolve(results);
       }
@@ -181,18 +182,18 @@ export async function createPartida(partida) {
             rodada_index
         )
     VALUES(
-        ${partida.id}, 
+        '${partida.id}', 
         ${partida.data}, 
-        ${partida.timeCasa}, 
-        ${partida.timeFora}, 
-        ${partida.escudoCasa}, 
-        ${partida.escudoFora},
+        '${partida.timeCasa}', 
+        '${partida.timeFora}', 
+        '${partida.escudoCasa}', 
+        '${partida.escudoFora}',
         ${partida.golsCasa},
         ${partida.golsFora},
-        ${partida.campeonato},
-        ${partida.campeonatoId},
+        '${partida.campeonato}',
+        '${partida.campeonatoId}',
         ${partida.partidaFlamengo},
-        ${partida.rodadaName},
+        '${partida.rodadaName}',
         ${partida.rodadaIndex}
     )
     `,
@@ -206,7 +207,7 @@ export async function createPartida(partida) {
 export async function deletePartidaWithCampeonatoId(campeonatoId) {
   await new Promise((resolve, reject) => {
     conn.query(
-      `DELETE FROM partidas WHERE campeonato_id=${campeonatoId}`,
+      `DELETE FROM partidas WHERE campeonato_id='${campeonatoId}'`,
       function (err) {
         err ? reject(err) : resolve(null);
       }
@@ -241,10 +242,10 @@ export async function createPosicao(posicao) {
             classificacao_index
         )
     VALUES(
-        ${posicao.id}, 
+        '${posicao.id}', 
         ${posicao.posicao}, 
-        ${posicao.nomeTime}, 
-        ${posicao.escudoTime}, 
+        '${posicao.nomeTime}', 
+        '${posicao.escudoTime}', 
         ${posicao.pontos}, 
         ${posicao.jogos},
         ${posicao.vitorias},
@@ -253,8 +254,8 @@ export async function createPosicao(posicao) {
         ${posicao.golsFeitos},
         ${posicao.golsSofridos},
         ${posicao.saldoGols},
-        ${posicao.campeonatoId},
-        ${posicao.classificacaoName},
+        '${posicao.campeonatoId}',
+        '${posicao.classificacaoName}',
         ${posicao.classificacaoIndex}
     )
     `,
@@ -268,7 +269,7 @@ export async function createPosicao(posicao) {
 export async function deletePosicaoWithCampeonatoId(campeonatoId) {
   await new Promise((resolve, reject) => {
     conn.query(
-      `DELETE FROM posicoes WHERE campeonato_id=${campeonatoId}`,
+      `DELETE FROM posicoes WHERE campeonato_id='${campeonatoId}'`,
       function (err) {
         err ? reject(err) : resolve(null);
       }

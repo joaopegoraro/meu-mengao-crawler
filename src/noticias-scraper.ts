@@ -5,8 +5,8 @@ import { createNoticia, deleteNoticiaWithSite } from "./db";
 
 export async function scrapeNoticias() {
   await scrapePage({}, async (page) => {
-    await scrapeGE(page);
     await scrapeColunaDoFla(page);
+    await scrapeGE(page);
   });
 }
 

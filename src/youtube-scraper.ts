@@ -10,17 +10,17 @@ export async function scrapeYoutube() {
 
 async function scrapeVeneCasagrande() {
   const veneCasagrandeChannelId = "UC084Mraf1n0rUIhz0V3sZfg";
-  scrapeYoutubeChannel(veneCasagrandeChannelId);
+  await scrapeYoutubeChannel(veneCasagrandeChannelId);
 }
 
 async function scrapeFlaTV() {
   const flaTVChannelId = "UCOa-WaNwQaoyFHLCDk7qKIw";
-  scrapeYoutubeChannel(flaTVChannelId);
+  await scrapeYoutubeChannel(flaTVChannelId);
 }
 
 async function scrapeMauroCezar() {
   const mauroCezarChannelId = "UCRcRAyb5Y4x3HVNKBZ9SMLA";
-  scrapeYoutubeChannel(mauroCezarChannelId);
+  await scrapeYoutubeChannel(mauroCezarChannelId);
 }
 
 async function scrapeYoutubeChannel(channelId: string) {
