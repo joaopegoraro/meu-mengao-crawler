@@ -9,6 +9,7 @@ import {
   deletePosicaoWithCampeonatoId,
   findAllCampeonatos,
   findCampeonatoById,
+  updateCampeonato,
   updateCampeonatoPossuiClassificacao,
   updateCampeonatoRodadaAtual,
 } from "./db";
@@ -104,7 +105,12 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
         link: campeonatoData.url,
         nome: campeonatoNome,
       };
-      await createCampeonato(newCampeonato);
+      const saved = await findCampeonatoById(newCampeonato.id);
+      if (saved) {
+        await updateCampeonato(newCampeonato);
+      } else {
+        await createCampeonato(newCampeonato);
+      }
     }
   } catch (e: unknown) {
     const message = `Erro ao tentar fazer scraping da url ${options.url}: `;
@@ -113,6 +119,7 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
     } else {
       console.log(message + e);
     }
+    throw e;
   }
 }
 
@@ -151,7 +158,6 @@ async function scrapeCampeonato(options: {
           });
 
         const savedCampeonato = await findCampeonatoById(campeonato.id);
-
         if (
           savedCampeonato &&
           savedCampeonato.ano != null &&
@@ -161,7 +167,11 @@ async function scrapeCampeonato(options: {
           await deletePartidaWithCampeonatoId(campeonato.id);
         }
 
-        await createCampeonato(campeonato);
+        if (savedCampeonato) {
+          await updateCampeonato(campeonato);
+        } else {
+          await createCampeonato(campeonato);
+        }
 
         await scrapePartidasForCampeonato({
           page: page,
@@ -177,12 +187,13 @@ async function scrapeCampeonato(options: {
       }
     );
   } catch (e: unknown) {
-    const message = `Exception ao tentar fazer scraping do campeonato ${options.campeonatoToScrape.id} (${options.campeonatoToScrape.nome}): `;
+    const message = `Exception ao tentar fazer scraping do campeonato ${options.campeonatoToScrape.id} (${options.campeonatoToScrape.nome}) - ${options.campeonatoToScrape.link}: `;
     if (e instanceof Error) {
       console.log(message + e.message, e.stack);
     } else {
       console.log(message + e);
     }
+    throw e;
   }
 }
 

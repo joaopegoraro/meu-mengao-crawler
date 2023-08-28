@@ -44,9 +44,11 @@ export async function scrapePage<T>(
   if (options.url) {
     await page
       .goto(options.url, {
-        waitUntil: options.waitUntil || ["networkidle0", "domcontentloaded"],
+        waitUntil: options.waitUntil || ["networkidle2", "domcontentloaded"],
       })
       .catch((e) => null);
+
+    await new Promise((r) => setTimeout(r, 10000));
   }
 
   const result = onScraping ? await onScraping(page, browser) : null;
