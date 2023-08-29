@@ -125,7 +125,7 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
         await createCampeonato(newCampeonato);
       }
     }
-  } catch (e: unknown) {
+  } catch (e) {
     const message = `Erro ao tentar fazer scraping da url ${options.url}: `;
     if (e instanceof Error) {
       console.log(message + e.message, e.stack);
@@ -300,8 +300,9 @@ async function scrapeClassificacoesForCampeonato(options: {
               });
             });
           })
-          .then(async (posicoes) =>
-            posicoes.map(async (posicao) => {
+          .then(async (posicoes) => {
+            for (let i = 0; i < posicoes.length; i++) {
+              const posicao = posicoes[i];
               posicao.campeonatoId = options.campeonatoId;
               posicao.id =
                 posicao.nomeTime +
@@ -312,9 +313,10 @@ async function scrapeClassificacoesForCampeonato(options: {
                 20,
                 20
               );
-              return posicao;
-            })
-          )
+              posicoes[i] = posicao;
+            }
+            return posicoes;
+          })
       );
 
       if (posicoes.length > 0) {
@@ -322,7 +324,7 @@ async function scrapeClassificacoesForCampeonato(options: {
       }
 
       for (var posicao of posicoes) {
-        const saved = findPosicaoById(posicao.id);
+        const saved = await findPosicaoById(posicao.id);
         if (saved) {
           await updatePosicao(posicao);
         } else {
@@ -494,35 +496,33 @@ async function scrapeRoundsFromPage(options: {
       options.startingRoundIndex
     )
     .then(async (partidasWithRounds) => {
-      partidasWithRounds.partidas = await Promise.all(
-        partidasWithRounds.partidas.map(async (partida) => {
-          partida.campeonato = options.nomeCampeonato;
-          partida.campeonatoId = options.campeonatoId;
+      for (let i = 0; i < partidasWithRounds.partidas.length; i++) {
+        const partida = partidasWithRounds.partidas[i];
+        partida.campeonato = options.nomeCampeonato;
+        partida.campeonatoId = options.campeonatoId;
 
-          const data =
-            moment(partida.data, "DD.MM. HH:mm").toDate() ||
-            moment(partida.data, "DD.MM.YYYY").toDate();
-          partida.data = data.getTime().toString();
+        const data =
+          moment(partida.data, "DD.MM. HH:mm").toDate() ||
+          moment(partida.data, "DD.MM.YYYY").toDate();
+        partida.data = data.getTime().toString();
 
-          partida.escudoCasa = await convertImageUrlToBase64(
-            partida.escudoCasa,
-            30,
-            30
-          );
-          partida.escudoFora = await convertImageUrlToBase64(
-            partida.escudoFora,
-            30,
-            30
-          );
-          return partida;
-        })
-      );
-
+        partida.escudoCasa = await convertImageUrlToBase64(
+          partida.escudoCasa,
+          30,
+          30
+        );
+        partida.escudoFora = await convertImageUrlToBase64(
+          partida.escudoFora,
+          30,
+          30
+        );
+        partidasWithRounds.partidas[i] = partida;
+      }
       return partidasWithRounds;
     });
 
   for (var partida of partidasWithRounds.partidas) {
-    const saved = findPartidaById(partida.id);
+    const saved = await findPartidaById(partida.id);
     if (saved) {
       await updatePartida(partida);
     } else {

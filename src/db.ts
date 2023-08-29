@@ -71,7 +71,6 @@ export async function deleteNoticiaWithSite(site) {
 
 export async function createCampeonato(campeonato) {
   await new Promise((resolve) => {
-    console.log(`CRIANDO CAMPEONATO ${JSON.stringify(campeonato, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -103,7 +102,6 @@ export async function createCampeonato(campeonato) {
 }
 
 export async function updateCampeonato(campeonato) {
-  console.log(`ATUALIZANDO CAMPEONATO ${JSON.stringify(campeonato, null, 4)}`);
   await new Promise((resolve) => {
     conn.query(
       `
@@ -185,7 +183,7 @@ export async function findCampeonatoById(id: string): Promise<any> {
       `SELECT * FROM campeonatos WHERE id='${id}' LIMIT 1`,
       function (err, results) {
         if (err) throw err;
-        resolve(results);
+        resolve(results.length > 0 ? results[0] : null);
       }
     );
   });
@@ -194,23 +192,26 @@ export async function findCampeonatoById(id: string): Promise<any> {
 export async function updateCampeonatoLastRound(id: string): Promise<any> {
   return await new Promise((resolve) => {
     conn.query(
-      `SELECT MAX(rodada_index) FROM partidas WHERE campeonato_id='${id}'`,
+      `SELECT MAX(rodada_index) as rodada_final FROM partidas WHERE campeonato_id='${id}'`,
       function (err, results) {
         if (err) throw err;
-
-        conn.query(
-          `
-        UPDATE campeonatos
-        SET 
-            rodada_final=${results.rodada_final}
-        WHERE 
-            id='${id}'
-        `,
-          function (err) {
-            if (err) throw err;
-            resolve(null);
-          }
-        );
+        if (results.length > 0 && results[0].rodada_final) {
+          conn.query(
+            `
+          UPDATE campeonatos
+          SET 
+              rodada_final=${results[0].rodada_final}
+          WHERE 
+              id='${id}'
+          `,
+            function (err) {
+              if (err) throw err;
+              resolve(null);
+            }
+          );
+        } else {
+          resolve(null);
+        }
       }
     );
   });
@@ -222,7 +223,6 @@ export async function updateCampeonatoLastRound(id: string): Promise<any> {
 
 export async function createPartida(partida) {
   await new Promise((resolve) => {
-    console.log(`CRIANDO PARTIDA ${JSON.stringify(partida, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -267,7 +267,6 @@ export async function createPartida(partida) {
 
 export async function updatePartida(partida) {
   await new Promise((resolve) => {
-    console.log(`ATUALIZANDO PARTIDA ${JSON.stringify(partida, null, 4)}`);
     conn.query(
       `
     UPDATE
@@ -315,7 +314,7 @@ export async function findPartidaById(id: string): Promise<any> {
       `SELECT * FROM partidas WHERE id='${id}' LIMIT 1`,
       function (err, results) {
         if (err) throw err;
-        resolve(results);
+        resolve(results.length > 0 ? results[0] : null);
       }
     );
   });
@@ -327,7 +326,6 @@ export async function findPartidaById(id: string): Promise<any> {
 
 export async function createPosicao(posicao) {
   await new Promise((resolve) => {
-    console.log(`CRIANDO POSICAO ${JSON.stringify(posicao, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -376,7 +374,6 @@ export async function createPosicao(posicao) {
 
 export async function updatePosicao(posicao) {
   await new Promise((resolve) => {
-    console.log(`ATUALIZANDO POSICAO ${JSON.stringify(posicao, null, 4)}`);
     conn.query(
       `
     UPDATE
@@ -397,6 +394,8 @@ export async function updatePosicao(posicao) {
       campeonato_id='${posicao.campeonatoId}',
       classificacao_name='${posicao.classificacaoName}',
       classificacao_index=${posicao.classificacaoIndex}
+    WHERE
+      id='${posicao.id}'
     `,
       function (err) {
         if (err) throw err;
@@ -424,7 +423,7 @@ export async function findPosicaoById(id: string): Promise<any> {
       `SELECT * FROM posicoes WHERE id='${id}' LIMIT 1`,
       function (err, results) {
         if (err) throw err;
-        resolve(results);
+        resolve(results.length > 0 ? results[0] : null);
       }
     );
   });

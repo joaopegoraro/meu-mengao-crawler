@@ -42,13 +42,12 @@ export async function scrapePage<T>(
   const page = options.page || (await browser.newPage());
 
   if (options.url) {
-    console.log(`INDO PARA ${options.url}`);
     await page
       .goto(options.url, {
         waitUntil: options.waitUntil || ["networkidle2", "domcontentloaded"],
       })
       .catch((e) => null);
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 1000));
   }
 
   const result = onScraping ? await onScraping(page, browser) : null;
@@ -62,11 +61,9 @@ export async function scrapePage<T>(
 
 export async function convertImageUrlToBase64(
   imageUrl: string,
-  width: number = this.DEFAULT_WIDTH,
-  height: number = this.DEFAULT_HEIGHT
+  width: number = 90,
+  height: number = 120
 ) {
-  const DEFAULT_WIDTH = 90;
-  const DEFAULT_HEIGHT = 120;
   const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
   const buffer = Buffer.from(response.data, "binary");
   const image = await sharp(buffer).resize(width, height).toBuffer();

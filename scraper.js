@@ -4,13 +4,16 @@ const youtube = require("./dist/youtube-scraper.js");
 const campeonatos = require("./dist/campeonatos-scraper.js");
 
 db.startConnection().then(async () => {
-  console.log("STARTED SCRAPING: " + new Date().toUTCString());
+  const startTime = new Date().toUTCString();
+  console.log(`STARTED SCRAPING: ${startTime}`);
 
-  //await noticias.scrapeNoticias();
-  //await youtube.scrapeYoutube();
+  await noticias.scrapeNoticias();
+  await youtube.scrapeYoutube();
   await campeonatos.scrapeCampeonatos();
 
   db.endConnection();
 
-  console.log("FINISHED SCRAPING: " + new Date().toUTCString());
+  console.log(
+    `FINISHED SCRAPING:\nStart time: ${startTime}\nEnd time: ${new Date().toUTCString()}`
+  );
 });
