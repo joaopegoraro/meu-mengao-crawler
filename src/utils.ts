@@ -42,13 +42,13 @@ export async function scrapePage<T>(
   const page = options.page || (await browser.newPage());
 
   if (options.url) {
+    console.log(`INDO PARA ${options.url}`);
     await page
       .goto(options.url, {
         waitUntil: options.waitUntil || ["networkidle2", "domcontentloaded"],
       })
       .catch((e) => null);
-
-    await new Promise((r) => setTimeout(r, 10000));
+    await new Promise((r) => setTimeout(r, 2000));
   }
 
   const result = onScraping ? await onScraping(page, browser) : null;

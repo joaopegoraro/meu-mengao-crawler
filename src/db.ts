@@ -10,16 +10,16 @@ const conn = createConnection({
 });
 
 export async function startConnection() {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.connect(function (err) {
-      err ? reject(err) : resolve("Connected!");
+      if (err) throw err;
+      resolve(null);
     });
   });
 }
 
 export function endConnection() {
   conn.end();
-  console.log("Finished!");
 }
 
 /*
@@ -27,7 +27,7 @@ export function endConnection() {
  */
 
 export async function createNoticia(noticia) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(
       `
     INSERT INTO 
@@ -49,16 +49,18 @@ export async function createNoticia(noticia) {
     )
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
 }
 
 export async function deleteNoticiaWithSite(site) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(`DELETE FROM noticias WHERE site='${site}'`, function (err) {
-      err ? reject(err) : resolve(null);
+      if (err) throw err;
+      resolve(null);
     });
   });
 }
@@ -68,7 +70,8 @@ export async function deleteNoticiaWithSite(site) {
  */
 
 export async function createCampeonato(campeonato) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
+    console.log(`CRIANDO CAMPEONATO ${JSON.stringify(campeonato, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -76,7 +79,6 @@ export async function createCampeonato(campeonato) {
             id, 
             ano, 
             nome, 
-            logo, 
             link, 
             possui_classificacao, 
             rodada_atual,
@@ -85,23 +87,24 @@ export async function createCampeonato(campeonato) {
     VALUES(
         '${campeonato.id}', 
         ${campeonato.ano ?? null}, 
-        ${"'" + campeonato.nome + "'" ?? null}', 
-        ${"'" + campeonato.logo + "'" ?? null}, 
-        ${"'" + campeonato.link + "'" ?? null}, 
+        ${campeonato.nome ? "'" + campeonato.nome + "'" : null}, 
+        ${campeonato.link ? "'" + campeonato.link + "'" : null}, 
         ${campeonato.possuiClassificacao ?? false}, 
         ${campeonato.rodadaAtual ?? 0},
         ${campeonato.rodadaFinal ?? 100}
     )
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
 }
 
 export async function updateCampeonato(campeonato) {
-  await new Promise((resolve, reject) => {
+  console.log(`ATUALIZANDO CAMPEONATO ${JSON.stringify(campeonato, null, 4)}`);
+  await new Promise((resolve) => {
     conn.query(
       `
     UPDATE 
@@ -109,9 +112,8 @@ export async function updateCampeonato(campeonato) {
     SET
       id='${campeonato.id}', 
       ano=${campeonato.ano ?? null}, 
-      nome=${"'" + campeonato.nome + "'" ?? null}, 
-      logo=${"'" + campeonato.logo + "'" ?? null}, 
-      link=${"'" + campeonato.link + "'" ?? null}, 
+      nome=${campeonato.nome ? "'" + campeonato.nome + "'" : null}, 
+      link=${campeonato.link ? "'" + campeonato.link + "'" : null}, 
       possui_classificacao=${campeonato.possuiClassificacao ?? false}, 
       rodada_atual=${campeonato.rodadaAtual ?? 0},
       rodada_final=${campeonato.rodadaFinal ?? 100}
@@ -119,7 +121,8 @@ export async function updateCampeonato(campeonato) {
         id='${campeonato.id}'
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
@@ -129,17 +132,18 @@ export async function updateCampeonatoPossuiClassificacao(
   campeonatoId: string,
   possuiClassificacao: boolean
 ) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(
       `
     UPDATE campeonatos
     SET 
-        possui_classificacao=${possuiClassificacao}, 
+        possui_classificacao=${possuiClassificacao}
     WHERE 
         id='${campeonatoId}'
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
@@ -149,36 +153,64 @@ export async function updateCampeonatoRodadaAtual(
   campeonatoId: string,
   rodadaAtual: number
 ) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(
       `
     UPDATE campeonatos
     SET 
-        rodada_atual=${rodadaAtual}, 
+        rodada_atual=${rodadaAtual}
     WHERE 
         id='${campeonatoId}'
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
 }
 
 export async function findAllCampeonatos(): Promise<any[]> {
-  return await new Promise((resolve, reject) => {
+  return await new Promise((resolve) => {
     conn.query(`SELECT * FROM campeonatos`, function (err, results) {
-      err ? reject(err) : resolve(results);
+      if (err) throw err;
+      resolve(results);
     });
   });
 }
 
 export async function findCampeonatoById(id: string): Promise<any> {
-  return await new Promise((resolve, reject) => {
+  return await new Promise((resolve) => {
     conn.query(
-      `SELECT * FROM campeonatos WHERE id='${id}'`,
+      `SELECT * FROM campeonatos WHERE id='${id}' LIMIT 1`,
       function (err, results) {
-        err ? reject(err) : resolve(results);
+        if (err) throw err;
+        resolve(results);
+      }
+    );
+  });
+}
+
+export async function updateCampeonatoLastRound(id: string): Promise<any> {
+  return await new Promise((resolve) => {
+    conn.query(
+      `SELECT MAX(rodada_index) FROM partidas WHERE campeonato_id='${id}'`,
+      function (err, results) {
+        if (err) throw err;
+
+        conn.query(
+          `
+        UPDATE campeonatos
+        SET 
+            rodada_final=${results.rodada_final}
+        WHERE 
+            id='${id}'
+        `,
+          function (err) {
+            if (err) throw err;
+            resolve(null);
+          }
+        );
       }
     );
   });
@@ -189,7 +221,8 @@ export async function findCampeonatoById(id: string): Promise<any> {
  */
 
 export async function createPartida(partida) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
+    console.log(`CRIANDO PARTIDA ${JSON.stringify(partida, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -225,18 +258,64 @@ export async function createPartida(partida) {
     )
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
+      }
+    );
+  });
+}
+
+export async function updatePartida(partida) {
+  await new Promise((resolve) => {
+    console.log(`ATUALIZANDO PARTIDA ${JSON.stringify(partida, null, 4)}`);
+    conn.query(
+      `
+    UPDATE
+      partidas
+    SET
+      id='${partida.id}', 
+      data=${partida.data}, 
+      time_casa='${partida.timeCasa}', 
+      time_fora='${partida.timeFora}', 
+      escudo_casa='${partida.escudoCasa}', 
+      escudo_fora='${partida.escudoFora}',
+      gols_casa=${partida.golsCasa},
+      gols_fora=${partida.golsFora},
+      campeonato='${partida.campeonato}',
+      campeonato_id='${partida.campeonatoId}',
+      partida_flamengo=${partida.partidaFlamengo},
+      rodada_name='${partida.rodadaName}',
+      rodada_index=${partida.rodadaIndex}
+    WHERE
+      id='${partida.id}'
+    `,
+      function (err) {
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
 }
 
 export async function deletePartidaWithCampeonatoId(campeonatoId: string) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(
       `DELETE FROM partidas WHERE campeonato_id='${campeonatoId}'`,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
+      }
+    );
+  });
+}
+
+export async function findPartidaById(id: string): Promise<any> {
+  return await new Promise((resolve) => {
+    conn.query(
+      `SELECT * FROM partidas WHERE id='${id}' LIMIT 1`,
+      function (err, results) {
+        if (err) throw err;
+        resolve(results);
       }
     );
   });
@@ -247,7 +326,8 @@ export async function deletePartidaWithCampeonatoId(campeonatoId: string) {
  */
 
 export async function createPosicao(posicao) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
+    console.log(`CRIANDO POSICAO ${JSON.stringify(posicao, null, 4)}`);
     conn.query(
       `
     INSERT INTO 
@@ -287,18 +367,64 @@ export async function createPosicao(posicao) {
     )
     `,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
+      }
+    );
+  });
+}
+
+export async function updatePosicao(posicao) {
+  await new Promise((resolve) => {
+    console.log(`ATUALIZANDO POSICAO ${JSON.stringify(posicao, null, 4)}`);
+    conn.query(
+      `
+    UPDATE
+      posicoes
+    SET
+      id='${posicao.id}', 
+      posicao=${posicao.posicao}, 
+      nome_time='${posicao.nomeTime}', 
+      escudo_time='${posicao.escudoTime}', 
+      pontos=${posicao.pontos}, 
+      jogos=${posicao.jogos},
+      vitorias=${posicao.vitorias},
+      empates=${posicao.empates},
+      derrotas=${posicao.derrotas},
+      gols_feitos=${posicao.golsFeitos},
+      gols_sofridos=${posicao.golsSofridos},
+      saldo_gols=${posicao.saldoGols},
+      campeonato_id='${posicao.campeonatoId}',
+      classificacao_name='${posicao.classificacaoName}',
+      classificacao_index=${posicao.classificacaoIndex}
+    `,
+      function (err) {
+        if (err) throw err;
+        resolve(null);
       }
     );
   });
 }
 
 export async function deletePosicaoWithCampeonatoId(campeonatoId: string) {
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     conn.query(
       `DELETE FROM posicoes WHERE campeonato_id='${campeonatoId}'`,
       function (err) {
-        err ? reject(err) : resolve(null);
+        if (err) throw err;
+        resolve(null);
+      }
+    );
+  });
+}
+
+export async function findPosicaoById(id: string): Promise<any> {
+  return await new Promise((resolve) => {
+    conn.query(
+      `SELECT * FROM posicoes WHERE id='${id}' LIMIT 1`,
+      function (err, results) {
+        if (err) throw err;
+        resolve(results);
       }
     );
   });

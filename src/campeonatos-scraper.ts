@@ -9,9 +9,14 @@ import {
   deletePosicaoWithCampeonatoId,
   findAllCampeonatos,
   findCampeonatoById,
+  findPartidaById,
+  findPosicaoById,
   updateCampeonato,
+  updateCampeonatoLastRound,
   updateCampeonatoPossuiClassificacao,
   updateCampeonatoRodadaAtual,
+  updatePartida,
+  updatePosicao,
 } from "./db";
 
 export async function scrapeCampeonatos() {
@@ -30,6 +35,7 @@ export async function scrapeCampeonatos() {
         campeonatoToScrape: campeonato,
         page: page,
       });
+      await updateCampeonatoLastRound(campeonato.id);
     }
   });
 }
@@ -82,8 +88,15 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
             ]);
 
             const url = page.url();
-            const id = new URL(url).pathname.split("/").filter(Boolean).pop();
-            campeonatosWithUrl.set(campeonato, { id, url });
+            const regexp =
+              /https:\/\/www\.flashscore\.com\.br\/futebol\/([\w-]+)\/([\w-]+)\/?.*/g;
+            var myRegexp = new RegExp(regexp);
+            var matches = myRegexp.exec(url);
+            const id = matches[2];
+            campeonatosWithUrl.set(campeonato, {
+              id,
+              url: `https://www.flashscore.com.br/futebol/${matches[1]}/${id}/`,
+            });
 
             await Promise.all([page.goBack(), page.waitForNavigation()]);
 
@@ -135,25 +148,17 @@ async function scrapeCampeonato(options: {
           .evaluate(() => {
             const nome = document.querySelector(".heading__name").textContent;
             const ano = document.querySelector(".heading__info").textContent;
-            const urlImagem =
-              document.querySelector<HTMLImageElement>(".heading__logo").src;
 
             return {
               id: "",
               link: "",
               nome: nome,
               ano: ano,
-              logo: urlImagem,
             };
           })
           .then(async (scrapedCampeonato) => {
             scrapedCampeonato.id = options.campeonatoToScrape.id;
             scrapedCampeonato.link = options.campeonatoToScrape.link;
-            scrapedCampeonato.logo = await convertImageUrlToBase64(
-              scrapedCampeonato.logo,
-              30,
-              30
-            );
             return scrapedCampeonato;
           });
 
@@ -317,7 +322,12 @@ async function scrapeClassificacoesForCampeonato(options: {
       }
 
       for (var posicao of posicoes) {
-        await createPosicao(posicao);
+        const saved = findPosicaoById(posicao.id);
+        if (saved) {
+          await updatePosicao(posicao);
+        } else {
+          await createPosicao(posicao);
+        }
       }
     }
   );
@@ -460,8 +470,8 @@ async function scrapeRoundsFromPage(options: {
                 data: dataText,
                 timeCasa: timeCasa.includes("Flamengo") ? "Flamengo" : timeCasa,
                 timeFora: timeFora.includes("Flamengo") ? "Flamengo" : timeFora,
-                golsCasa: golsCasa,
-                golsFora: golsFora,
+                golsCasa: Number.isInteger(golsCasa) ? golsCasa : 0,
+                golsFora: Number.isInteger(golsFora) ? golsFora : 0,
                 campeonato: "",
                 campeonatoId: "",
                 partidaFlamengo: [timeCasa, timeFora].some((time) =>
@@ -512,7 +522,12 @@ async function scrapeRoundsFromPage(options: {
     });
 
   for (var partida of partidasWithRounds.partidas) {
-    await createPartida(partida);
+    const saved = findPartidaById(partida.id);
+    if (saved) {
+      await updatePartida(partida);
+    } else {
+      await createPartida(partida);
+    }
   }
 
   return partidasWithRounds.roundsSize;
