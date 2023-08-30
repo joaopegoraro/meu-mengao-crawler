@@ -31,8 +31,8 @@ async function scrapeYoutubeChannel(channelId: string) {
     const response = await axios.get(invidiousUrl + channelId);
     const video = response.data["latestVideos"][0];
 
-    // Thumbnail 5 é a 'high', de tamanho 480x360
-    const thumbnail = video["videoThumbnails"][4];
+    // Thumbnail 1 é a 'maxresdefault', de tamanho 1280x720
+    const thumbnail = video["videoThumbnails"][1];
 
     // Thumbnail do autor 2 tem tamanho 76x76
     const logo = response.data["authorThumbnails"][2];
@@ -43,7 +43,7 @@ async function scrapeYoutubeChannel(channelId: string) {
       site: video["author"],
       data: video["published"],
       logoSite: await convertImageUrlToBase64(logo["url"], 76, 76),
-      foto: await convertImageUrlToBase64(thumbnail["url"], 350, 250),
+      foto: thumbnail["url"],
     };
 
     await deleteNoticiaWithSite(noticia.site);

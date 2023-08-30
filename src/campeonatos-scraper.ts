@@ -276,7 +276,9 @@ async function scrapeClassificacoesForCampeonato(options: {
                 const golsFeitos = parseInt(score[0]) | 0;
                 const golsSofridos = parseInt(score[1]) | 0;
                 const saldoGols = golsFeitos - golsSofridos;
-                const pontos = colunas[5].textContent;
+                const pontos = element.querySelector(
+                  ".table__cell--value.table__cell--points"
+                )?.textContent;
 
                 return {
                   id: "",
