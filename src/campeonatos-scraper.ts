@@ -448,7 +448,7 @@ async function scrapeRoundsFromPage(options: {
           const roundIndex = index + startingRoundIndex;
 
           return chunk
-            .filter((element, index) => index != 0)
+            .filter((_, index) => index != 0)
             .map((element) => {
               const dataText =
                 element.querySelector(".event__time").textContent;
@@ -459,9 +459,11 @@ async function scrapeRoundsFromPage(options: {
                 ".event__participant--away"
               ).textContent;
               const golsCasa =
-                element.querySelector(".event__score--home")?.textContent ?? "";
+                element.querySelector(".event__score--home")?.textContent ??
+                "0";
               const golsFora =
-                element.querySelector(".event__score--away")?.textContent ?? "";
+                element.querySelector(".event__score--away")?.textContent ??
+                "0";
               const escudoCasaUrl =
                 element.querySelector<HTMLImageElement>(".event__logo--home")
                   ?.src ?? "";
@@ -474,8 +476,8 @@ async function scrapeRoundsFromPage(options: {
                 data: dataText,
                 timeCasa: timeCasa.includes("Flamengo") ? "Flamengo" : timeCasa,
                 timeFora: timeFora.includes("Flamengo") ? "Flamengo" : timeFora,
-                golsCasa: Number.isInteger(golsCasa) ? golsCasa : 0,
-                golsFora: Number.isInteger(golsFora) ? golsFora : 0,
+                golsCasa: parseInt(golsCasa) ?? 0,
+                golsFora: parseInt(golsFora) ?? 0,
                 campeonato: "",
                 campeonatoId: "",
                 partidaFlamengo: [timeCasa, timeFora].some((time) =>
