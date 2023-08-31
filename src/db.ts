@@ -37,7 +37,8 @@ export async function createNoticia(noticia) {
             data, 
             site, 
             logo_site, 
-            foto
+            foto,
+            foto_base_64
         )
     VALUES(
         '${noticia.link}', 
@@ -45,7 +46,8 @@ export async function createNoticia(noticia) {
         ${noticia.data}, 
         '${noticia.site}', 
         '${noticia.logoSite}', 
-        '${noticia.foto}'
+        '${noticia.foto}',
+        '${noticia.fotoBase64}'
     )
     `,
       function (err) {

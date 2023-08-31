@@ -44,6 +44,7 @@ async function scrapeYoutubeChannel(channelId: string) {
       data: video["published"],
       logoSite: await convertImageUrlToBase64(logo["url"], 76, 76),
       foto: thumbnail["url"],
+      fotoBase64: await convertImageUrlToBase64(thumbnail["url"], 350, 250),
     };
 
     await deleteNoticiaWithSite(noticia.site);
