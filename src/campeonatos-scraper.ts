@@ -460,10 +460,10 @@ async function scrapeRoundsFromPage(options: {
               ).textContent;
               const golsCasa =
                 element.querySelector(".event__score--home")?.textContent ??
-                "0";
+                "-";
               const golsFora =
                 element.querySelector(".event__score--away")?.textContent ??
-                "0";
+                "-";
               const escudoCasaUrl =
                 element.querySelector<HTMLImageElement>(".event__logo--home")
                   ?.src ?? "";
@@ -476,8 +476,8 @@ async function scrapeRoundsFromPage(options: {
                 data: dataText,
                 timeCasa: timeCasa.includes("Flamengo") ? "Flamengo" : timeCasa,
                 timeFora: timeFora.includes("Flamengo") ? "Flamengo" : timeFora,
-                golsCasa: parseInt(golsCasa) ?? 0,
-                golsFora: parseInt(golsFora) ?? 0,
+                golsCasa: golsCasa,
+                golsFora: golsFora,
                 campeonato: "",
                 campeonatoId: "",
                 partidaFlamengo: [timeCasa, timeFora].some((time) =>
