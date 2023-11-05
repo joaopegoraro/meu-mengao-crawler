@@ -4,6 +4,7 @@ import axios from "axios";
 
 export async function scrapeYoutube() {
   await scrapeVeneCasagrande();
+  await scrapeWilliamGodoy();
   await scrapeFlaTV();
   await scrapeMauroCezar();
 }
@@ -11,6 +12,11 @@ export async function scrapeYoutube() {
 async function scrapeVeneCasagrande() {
   const veneCasagrandeChannelId = "UC084Mraf1n0rUIhz0V3sZfg";
   await scrapeYoutubeChannel(veneCasagrandeChannelId);
+}
+
+async function scrapeWilliamGodoy() {
+  const williamGodoyChannelId = "UCc4DtrXkijb7Uf0WrxFa9Yg";
+  await scrapeYoutubeChannel(williamGodoyChannelId);
 }
 
 async function scrapeFlaTV() {
