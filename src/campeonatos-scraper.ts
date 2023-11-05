@@ -132,7 +132,6 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
     } else {
       console.log(message + e);
     }
-    throw e;
   }
 }
 
@@ -198,7 +197,6 @@ async function scrapeCampeonato(options: {
     } else {
       console.log(message + e);
     }
-    throw e;
   }
 }
 
