@@ -47,7 +47,7 @@ export async function scrapePage<T>(
         waitUntil: options.waitUntil || ["networkidle2", "domcontentloaded"],
       })
       .catch((e) => null);
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 5000));
   }
 
   const result = onScraping ? await onScraping(page, browser) : null;

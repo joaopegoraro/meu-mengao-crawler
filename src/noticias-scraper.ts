@@ -63,7 +63,10 @@ async function scrapeColunaDoFla(page: Page) {
       }
     );
 
-    await deleteNoticiaWithSite(noticias[0].site);
+    if (noticias.length > 0) {
+      await deleteNoticiaWithSite(noticias[0].site);
+    }
+
     for (var noticia of noticias) {
       if (noticia.link.startsWith("https://colunadofla.com")) {
         await createNoticia(noticia);
