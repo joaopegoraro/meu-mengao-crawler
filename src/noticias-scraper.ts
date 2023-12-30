@@ -99,7 +99,7 @@ async function scrapeGE(page: Page) {
                   );
                   const naoVideo = !element
                     .querySelector<HTMLSpanElement>(".bstn-hl-title")
-                    ?.getAttribute("data-video-id");
+                    .getAttribute("data-video-id");
 
                   return naoEvento && naoVideo;
                 })
@@ -135,7 +135,7 @@ async function scrapeGE(page: Page) {
                   (element) =>
                     !element
                       .querySelector<HTMLAnchorElement>(".feed-post-link")
-                      ?.getAttribute("data-video-id")
+                      .getAttribute("data-video-id")
                 )
                 .map((element) => {
                   const anchor =
