@@ -26,7 +26,7 @@ export async function scrapePage<T>(
       : options.browser ||
         (await puppeteer.launch(
           options.launchOptions || {
-            headless: options.headless != null ? options.headless : "new",
+            headless: options.headless != null ? options.headless : true,
             args: options.args || [
               "--disable-gpu",
               "--disable-dev-shm-usage",

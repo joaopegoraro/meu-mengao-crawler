@@ -73,7 +73,7 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
         >();
         let links = await (
           await page.$(".sportName")
-        ).$$(".event__title--name");
+        )?.$$(".event__title--name");
         for (let i = 0; i < links.length; i++) {
           const link = links[i];
 
@@ -102,7 +102,7 @@ async function scrapeCampeonatosUrlsFromUrl(options: {
 
             links = await (
               await page.$(".sportName")
-            ).$$(".event__title--name");
+            )?.$$(".event__title--name");
           }
         }
 
@@ -211,7 +211,7 @@ async function scrapeClassificacoesForCampeonato(options: {
     async (page) => {
       ".filter__group > a";
 
-      let links = await page.$$(
+      let links = await page?.$$(
         "#tournament-table > .tournamentTableDraw__filter > .filter__group > a"
       );
       for (let i = 0; i < links.length; i++) {
@@ -231,7 +231,7 @@ async function scrapeClassificacoesForCampeonato(options: {
 
         await Promise.all([page.waitForNavigation(), page.goBack()]);
 
-        links = await page.$$(
+        links = await page?.$$(
           "#tournament-table > .tournamentTableDraw__filter > .filter__group > a"
         );
       }

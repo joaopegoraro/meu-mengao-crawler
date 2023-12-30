@@ -99,7 +99,7 @@ async function scrapeGE(page: Page) {
                   );
                   const naoVideo = !element
                     .querySelector<HTMLSpanElement>(".bstn-hl-title")
-                    .getAttribute("data-video-id");
+                    ?.getAttribute("data-video-id");
 
                   return naoEvento && naoVideo;
                 })
@@ -135,7 +135,7 @@ async function scrapeGE(page: Page) {
                   (element) =>
                     !element
                       .querySelector<HTMLAnchorElement>(".feed-post-link")
-                      .getAttribute("data-video-id")
+                      ?.getAttribute("data-video-id")
                 )
                 .map((element) => {
                   const anchor =
@@ -174,7 +174,10 @@ async function scrapeGE(page: Page) {
             })
         );
 
-        await deleteNoticiaWithSite(noticias[0].site);
+        if (noticias.length > 0) {
+          await deleteNoticiaWithSite(noticias[0].site);
+        }
+
         for (var noticia of noticias) {
           const data = await scrapePage(
             { url: noticia.link, page: page },
