@@ -65,7 +65,9 @@ async function scrapeColunaDoFla(page: Page) {
 
     await deleteNoticiaWithSite(noticias[0].site);
     for (var noticia of noticias) {
-      await createNoticia(noticia);
+      if (noticia.link.startsWith("https://colunadofla.com")) {
+        await createNoticia(noticia);
+      } 
     }
   } catch (e: unknown) {
     const message = `Exception ao tentar fazer scraping da Coluna do Fla: `;
@@ -115,7 +117,7 @@ async function scrapeGE(page: Page) {
                     titulo: title.textContent,
                     link: anchor.href,
                     site: anchor.host,
-                    data: "",
+                    data: data.getTime().toString(),
                     logoSite: "",
                     foto: imageUrl,
                     fotoBase64: "",
@@ -177,14 +179,16 @@ async function scrapeGE(page: Page) {
               return await page.evaluate(() => {
                 return document.querySelector<HTMLTimeElement>(
                   ".content-publication-data__updated > time"
-                ).dateTime;
+                )?.dateTime;
               });
             }
           );
 
           noticia.data = moment(data).toDate().getTime().toString();
 
-          await createNoticia(noticia);
+          if (noticia.link.startsWith("https://ge.globo.com")) {
+            await createNoticia(noticia);
+          } 
         }
       }
     );

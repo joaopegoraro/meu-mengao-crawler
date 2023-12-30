@@ -506,7 +506,8 @@ async function scrapeRoundsFromPage(options: {
         const data =
           moment(partida.data, "DD.MM. HH:mm").toDate() ||
           moment(partida.data, "DD.MM.YYYY").toDate();
-        partida.data = data.getTime().toString();
+        const time = data.getTime();
+        partida.data = time.toString();
 
         partida.escudoCasa = await convertImageUrlToBase64(
           partida.escudoCasa,
@@ -524,6 +525,7 @@ async function scrapeRoundsFromPage(options: {
     });
 
   for (var partida of partidasWithRounds.partidas) {
+    if (partida.data == 'NaN') continue;
     const saved = await findPartidaById(partida.id);
     if (saved) {
       await updatePartida(partida);
